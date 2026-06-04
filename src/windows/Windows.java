@@ -1,87 +1,143 @@
 package windows;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.Timer;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URL;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class Windows extends javax.swing.JFrame {
 
-    /**
-     * Constructor: This runs automatically when the application starts
-     */
+    private int mouseX;
+    private int mouseY;
+
     public Windows() {
-        // 1. Initialize all UI components created by NetBeans (Must be the first line!)
         initComponents(); 
         
-        // 2. Set the custom DesktopPanel as the background content pane to show the wallpaper
         DesktopPanel desktop = new DesktopPanel();
         this.setContentPane(desktop);
         
-        // 3. Window settings: Center the window on the screen and lock the size
+        // --- 1. CLICKABLE GAME SHORTCUT ICON (RESIZED TO 64x64) ---
+        try {
+            URL iconURL = getClass().getResource("/windows/resources/umagame.jpg");
+            if (iconURL != null) {
+                ImageIcon originalIcon = new ImageIcon(iconURL);
+                
+                // Scale the image smoothly to 64x64 pixels
+                java.awt.Image scaledImage = originalIcon.getImage().getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+                ImageIcon gameIcon = new ImageIcon(scaledImage);
+                
+                JLabel iconLabel = new JLabel(gameIcon);
+                iconLabel.setBounds(30, 30, 64, 64);
+                
+                // Add mouse listener to handle clicking into the game
+                iconLabel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        System.out.println("Shortcut clicked! Launching game...");
+                        
+                        // LAUNCH THE GAME FROM THE NEW PACKAGE: windows.games.uma
+                        processing.core.PApplet.main("windows.games.uma.MySketch1"); 
+                    }
+                });
+                
+                desktop.add(iconLabel);
+            } else {
+                System.out.println("Error: Cannot find umagame.jpg in resources.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        // --- 2. DESKTOP PET WITH MOUSE DRAG FEATURE ---
+        try {
+            URL petURL = getClass().getResource("/windows/resources/mambo-matikanetannhauser.gif");
+            if (petURL != null) {
+                ImageIcon petIcon = new ImageIcon(petURL);
+                JLabel petLabel = new JLabel(petIcon);
+                
+                petLabel.setBounds(150, 400, petIcon.getIconWidth(), petIcon.getIconHeight());
+                
+                petLabel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
+                    }
+                });
+
+                petLabel.addMouseMotionListener(new MouseAdapter() {
+                    @Override
+                    public void mouseDragged(MouseEvent e) {
+                        int x = petLabel.getX() + e.getX() - mouseX;
+                        int y = petLabel.getY() + e.getY() - mouseY;
+                        petLabel.setLocation(x, y);
+                    }
+                });
+                
+                desktop.add(petLabel);
+            } else {
+                System.out.println("Error: Cannot find mambo-matikanetannhauser.gif in resources.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Window settings
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         
-        // 4. Audio: Play the startup sound from the resources package
+        // Audio execution sequence
         AudioManager.playSound("/windows/resources/openwindows.wav");
         
-        // 5. Clock: Start the real-time digital clock timer
+        Timer bgmTimer = new Timer(3500, e -> {
+            AudioManager.playSound("/windows/resources/Matikanetannhausergifmu.wav");
+        });
+        bgmTimer.setRepeats(false);
+        bgmTimer.start();
+        
         startClock();
     }
 
-    /**
-     * Timer logic to update the clock every 1000 milliseconds (1 second)
-     */
     private void startClock() {
-        // Create a Swing Timer that triggers an action every 1 second
         Timer timer = new Timer(1000, e -> {
-            // Get the current system time from the computer
             LocalTime now = LocalTime.now();
-            // Set the time format to Hour:Minute:Second
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-            
-            // Display the formatted time on your lblClock label
-            lblClock.setText(now.format(formatter)); 
+            if (lblClock != null) {
+                lblClock.setText(now.format(formatter)); 
+            }
         });
-        
-        // Start the timer running
         timer.start(); 
     }
 
-    /**
-     * Component initialization generated by NetBeans.
-     */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
-        // NetBeans will handle the layout and setup inside here automatically
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Retro Windows OS");
         
-        // Basic layout container initialization
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1024, Short.MAX_VALUE) // Set default window width to 1024
+            .addGap(0, 1024, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 720, Short.MAX_VALUE) // Set default window height to 720
+            .addGap(0, 720, Short.MAX_VALUE)
         );
 
         pack();
     }
     // </editor-fold>                        
 
-    /**
-     * The main entry point of the OS application
-     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(() -> {
-            // Open and display the main Windows OS frame
             new Windows().setVisible(true); 
         });
     }
 
-    // Variables declaration - manually added to fix compilation errors
     private javax.swing.JLabel lblClock;
 }

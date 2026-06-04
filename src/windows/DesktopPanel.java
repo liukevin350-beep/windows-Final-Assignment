@@ -17,7 +17,7 @@ public class DesktopPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         try {
-            // Load the Windows 11 wallpaper image from the resources package
+            // Load the Windows 11 wallpaper image with the space in the name
             URL imgURL = getClass().getResource("/windows/resources/windows11 t.jpg");
             if (imgURL != null) {
                 ImageIcon wallpaper = new ImageIcon(imgURL);
